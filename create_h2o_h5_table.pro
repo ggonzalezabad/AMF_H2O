@@ -41,7 +41,7 @@ PRO create_h2o_h5_table
   H5G_CLOSE, grp_id
 
   ; Fill in Grid group
-  filename = './fitting_results/Radiance_fit_l375.dat'
+  filename = '../fitting_results/Radiance_fit_l375.dat'
   RESTORE, filename
   grp_id =H5G_OPEN(file_id,'Grid')
   ; Wavelength
@@ -87,7 +87,7 @@ PRO create_h2o_h5_table
   H5A_CLOSE, att_id
   H5D_CLOSE, dat_id
   ; Cloud pressure
-  cldp = [1000,0950,0900,0850,0800,0750,0700,0600,0500,0400,0300,0200]
+  cldp = [1000.0,0950.0,0900.0,0850.0,0800.0,0750.0,0700.0,0600.0,0500.0,0400.0,0300.0,0200.0]
   cldps = ['1000','0950','0900','0850','0800','0750','0700','0600','0500','0400','0300','0200']
   ncldp = N_ELEMENTS(cldp)
   datatype  = H5T_IDL_CREATE(cldp)
@@ -122,7 +122,7 @@ PRO create_h2o_h5_table
   aircolum_layer = FLTARR(NTOMS,NLAY)
   ozonecol_layer = FLTARR(NTOMS,NLAY)
   FOR itoms = 0, ntoms-1 do begin
-     filename = './fitting_results/Radiance_fit_'+TOMS[itoms]+'.dat'
+     filename = '../fitting_results/Radiance_fit_'+TOMS[itoms]+'.dat'
      RESTORE, filename
      temperat_level[itoms,*] = temp
      aircolum_layer[itoms,*] = airc
@@ -217,7 +217,7 @@ PRO create_h2o_h5_table
   Sb_all = FLTARR(NTOMS)
   ; Fill in clear sky variables
   For itoms = 0, ntoms-1 do begin
-     filename = './fitting_results/Radiance_fit_'+TOMS[itoms]+'.dat'
+     filename = '../fitting_results/Radiance_fit_'+TOMS[itoms]+'.dat'
      print, filename
      RESTORE, filename
      I0_all[itoms,*,*] = TRANSPOSE(I0)
@@ -288,7 +288,7 @@ PRO create_h2o_h5_table
   ; Fill in cloudy sky variables
   For itoms = 0, ntoms-1 do begin
      For ipre = 0, ncldp-1 do begin
-        filename = './fitting_results/Radiance_fit_'+TOMS[itoms]+'_'+CLDPS[ipre]+'.dat'
+        filename = '../fitting_results/Radiance_fit_'+TOMS[itoms]+'_'+CLDPS[ipre]+'.dat'
         print, filename
         RESTORE, filename
         I0_all[itoms,ipre,*,*] = TRANSPOSE(I0)
@@ -365,7 +365,7 @@ PRO create_h2o_h5_table
   dI2_all = FLTARR(NTOMS,NLAY,NALBEDO,NVZA,NSZA)
   ; Fill in cloud sky variables
   For itoms = 0, ntoms-1 do begin
-     filename = './fitting_results/Scattering_fit_'+TOMS[itoms]+'.dat'
+     filename = '../fitting_results/Scattering_fit_'+TOMS[itoms]+'.dat'
      print, filename
      RESTORE, filename
      dI0_all[itoms,*,*,*,*] = TRANSPOSE(dI0)
@@ -412,7 +412,7 @@ PRO create_h2o_h5_table
   ; Fill in cloud sky variables
   For itoms = 0, ntoms-1 do begin
      For ipre = 0, ncldp-1 do begin
-        filename = './fitting_results/Scattering_fit_'+TOMS[itoms]+'_'+CLDPS[ipre]+'.dat'
+        filename = '../fitting_results/Scattering_fit_'+TOMS[itoms]+'_'+CLDPS[ipre]+'.dat'
         print, filename
         RESTORE, filename
         dI0_all[itoms,*,ipre,*,*] = TRANSPOSE(dI0)
