@@ -66,7 +66,7 @@ nsza = data1._dimensions.nsza
 nvza = data1._dimensions.nvza
 nraa = data1._dimensions.naza
 nlay = data1._dimensions.nlayer
-stop
+
 sw1m  = FLTARR(nlay,nsza,nvza,nraa) & in1m = FLTARR(nsza,nvza,nraa)
 sw2m  = FLTARR(nlay,nsza,nvza,nraa) & in2m = FLTARR(nsza,nvza,nraa)
 sw3m  = FLTARR(nlay,nsza,nvza,nraa) & in3m = FLTARR(nsza,nvza,nraa)
@@ -127,14 +127,14 @@ cgplot, alog(clp), rad, color = 1, yrange = [0.0, MAX(in12m[*,*,*])]
 rad  = [in1m[5,5,5],in2m[5,5,5],in3m[5,5,5],in4m[5,5,5],in5m[5,5,5],in6m[5,5,5],$
         in7m[5,5,5],in8m[5,5,5],in9m[5,5,5],in10m[5,5,5],in11m[5,5,5],in12m[5,5,5]]
 cgplot, alog(clp), rad, color = 3, /Overplot
-stop
+
 ; Plot scattering albedo dependence
-sca  = [sw1m[45,0,0,0],sw2m[45,0,0,0],sw3m[45,0,0,0],sw4m[45,0,0,0],sw5m[45,0,0,0],sw6m[45,0,0,0],$
-        sw7m[45,0,0,0],sw8m[45,0,0,0],sw9m[45,0,0,0],sw10m[45,0,0,0],sw11m[45,0,0,0],sw12m[45,0,0,0]]
-cgplot, alog(clp), sca, color = 1, yrange = [0.0, MAX(sw12m[*,*,*,*])]
+sca  = [sw1m[25,0,0,0],sw2m[25,0,0,0],sw3m[25,0,0,0],sw4m[25,0,0,0],sw5m[25,0,0,0],sw6m[25,0,0,0],$
+        sw7m[25,0,0,0],sw8m[25,0,0,0],sw9m[25,0,0,0],sw10m[25,0,0,0],sw11m[25,0,0,0],sw12m[25,0,0,0]]
+cgplot, (clp), sca, color = 1, yrange = [0.0, MAX(sw12m[*,*,*,*])]
 
 sca  = [sw1m[20,5,5,5],sw2m[20,5,5,5],sw3m[20,5,5,5],sw4m[20,5,5,5],sw5m[20,5,5,5],sw6m[20,5,5,5],$
         sw7m[20,5,5,5],sw8m[20,5,5,5],sw9m[20,5,5,5],sw10m[20,5,5,5],sw11m[20,5,5,5],sw12m[20,5,5,5]]
-cgplot, alog(clp), sca, color = 3, /Overplot
+cgplot, (clp), sca, color = 3, /Overplot
 
 END
