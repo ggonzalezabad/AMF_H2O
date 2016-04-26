@@ -2,18 +2,18 @@
 x_margin = !x.margin & y_margin = !y.margin & z_margin = !z.margin
 
 ; Read files
-filename1 = '/data/tempo2/ggonzale/GEOCAPE-TOOL/H2O/CALCULATIONS/H2O_l325_1030_0.00_1000_0.0001_GC_upwelling_output.nc'
-filename2 = '/data/tempo2/ggonzale/GEOCAPE-TOOL/H2O/CALCULATIONS/H2O_l325_1030_0.00_1000_0.01_GC_upwelling_output.nc'
-filename3 = '/data/tempo2/ggonzale/GEOCAPE-TOOL/H2O/CALCULATIONS/H2O_l325_1030_0.00_1000_0.10_GC_upwelling_output.nc'
-filename4 = '/data/tempo2/ggonzale/GEOCAPE-TOOL/H2O/CALCULATIONS/H2O_l325_1030_0.00_1000_0.20_GC_upwelling_output.nc'
-filename5 = '/data/tempo2/ggonzale/GEOCAPE-TOOL/H2O/CALCULATIONS/H2O_l325_1030_0.00_1000_0.30_GC_upwelling_output.nc'
-filename6 = '/data/tempo2/ggonzale/GEOCAPE-TOOL/H2O/CALCULATIONS/H2O_l325_1030_0.00_1000_0.40_GC_upwelling_output.nc'
-filename7 = '/data/tempo2/ggonzale/GEOCAPE-TOOL/H2O/CALCULATIONS/H2O_l325_1030_0.00_1000_0.50_GC_upwelling_output.nc'
-filename8 = '/data/tempo2/ggonzale/GEOCAPE-TOOL/H2O/CALCULATIONS/H2O_l325_1030_0.00_1000_0.60_GC_upwelling_output.nc'
-filename9 = '/data/tempo2/ggonzale/GEOCAPE-TOOL/H2O/CALCULATIONS/H2O_l325_1030_0.00_1000_0.70_GC_upwelling_output.nc'
-filename10 = '/data/tempo2/ggonzale/GEOCAPE-TOOL/H2O/CALCULATIONS/H2O_l325_1030_0.00_1000_0.80_GC_upwelling_output.nc'
-filename11 = '/data/tempo2/ggonzale/GEOCAPE-TOOL/H2O/CALCULATIONS/H2O_l325_1030_0.00_1000_0.90_GC_upwelling_output.nc'
-filename12 = '/data/tempo2/ggonzale/GEOCAPE-TOOL/H2O/CALCULATIONS/H2O_l325_1030_0.00_1000_1.00_GC_upwelling_output.nc'
+filename1 = '/data/tempo2/ggonzale/GEOCAPE-TOOL/H2O/CALCULATIONS/H2O_l325_1030_0.00_1000_0.01_GC_upwelling_output.nc'
+filename2 = '/data/tempo2/ggonzale/GEOCAPE-TOOL/H2O/CALCULATIONS/H2O_l325_0950_0.00_1000_0.01_GC_upwelling_output.nc'
+filename3 = '/data/tempo2/ggonzale/GEOCAPE-TOOL/H2O/CALCULATIONS/H2O_l325_0900_0.00_1000_0.01_GC_upwelling_output.nc'
+filename4 = '/data/tempo2/ggonzale/GEOCAPE-TOOL/H2O/CALCULATIONS/H2O_l325_0850_0.00_1000_0.01_GC_upwelling_output.nc'
+filename5 = '/data/tempo2/ggonzale/GEOCAPE-TOOL/H2O/CALCULATIONS/H2O_l325_0800_0.00_1000_0.01_GC_upwelling_output.nc'
+filename6 = '/data/tempo2/ggonzale/GEOCAPE-TOOL/H2O/CALCULATIONS/H2O_l325_0750_0.00_1000_0.01_GC_upwelling_output.nc'
+filename7 = '/data/tempo2/ggonzale/GEOCAPE-TOOL/H2O/CALCULATIONS/H2O_l325_0700_0.00_1000_0.01_GC_upwelling_output.nc'
+filename8 = '/data/tempo2/ggonzale/GEOCAPE-TOOL/H2O/CALCULATIONS/H2O_l325_0650_0.00_1000_0.01_GC_upwelling_output.nc'
+filename9 = '/data/tempo2/ggonzale/GEOCAPE-TOOL/H2O/CALCULATIONS/H2O_l325_0600_0.00_1000_0.01_GC_upwelling_output.nc'
+filename10 = '/data/tempo2/ggonzale/GEOCAPE-TOOL/H2O/CALCULATIONS/H2O_l325_0550_0.00_1000_0.01_GC_upwelling_output.nc'
+filename11 = '/data/tempo2/ggonzale/GEOCAPE-TOOL/H2O/CALCULATIONS/H2O_l325_0500_0.00_1000_0.01_GC_upwelling_output.nc'
+filename12 = '/data/tempo2/ggonzale/GEOCAPE-TOOL/H2O/CALCULATIONS/H2O_l325_0450_0.00_1000_0.01_GC_upwelling_output.nc'
 
 obj   = Obj_New('NCDF_DATA', filename1)
 data1 = obj -> ReadFile(filename1)
@@ -118,30 +118,23 @@ Endfor
 Endfor
 Endfor
 
-; Plot radiance SZA dependence
-cgplot, cos(sza*!pi/180.0), in2m[*,0,0], color = 1, yrange = [0.0, MAX(in12m)]
-For ivza = 0, nvza-1 do begin
-   cgplot, cos(sza*!pi/180.0), in2m[*,ivza,0], color = 1+ivza, /Overplot
-   cgplot, cos(sza*!pi/180.0), in10m[*,ivza,0], color = 1+ivza, /Overplot
-Endfor
+surf  = [1030.0, 950.0, 900.0, 850.0, 800.0, 750.0, 700.0, 650.0, 600.0, 550.0, 500.0, 450.0]
+; Plot radiance albedo dependence
+rad  = [in1m[0,0,0],in2m[0,0,0],in3m[0,0,0],in4m[0,0,0],in5m[0,0,0],in6m[0,0,0],$
+        in7m[0,0,0],in8m[0,0,0],in9m[0,0,0],in10m[0,0,0],in11m[0,0,0],in12m[0,0,0]]
+cgplot, alog(surf), rad, color = 1, yrange = [0.0, MAX(in12m[*,*,*])]
 
-; Plot radiance VZA dependence
-cgplot, cos(vza*!pi/180.0), in2m[0,*,0], color = 1, yrange = [0.0, MAX(in12m)]
-For isza = 0, nsza-1 do begin
-   cgplot, cos(vza*!pi/180.0), in2m[isza,*,0], color = 1+isza, /Overplot
-   cgplot, cos(vza*!pi/180.0), in10m[isza,*,0], color = 1+isza, /Overplot
-Endfor
+rad  = [in1m[5,5,5],in2m[5,5,5],in3m[5,5,5],in4m[5,5,5],in5m[5,5,5],in6m[5,5,5],$
+        in7m[5,5,5],in8m[5,5,5],in9m[5,5,5],in10m[5,5,5],in11m[5,5,5],in12m[5,5,5]]
+cgplot, alog(surf), rad, color = 3, /Overplot
 
-diff = (sw1m-sw2m)
-cgplot, diff[*,0,0,0], zmid, color = 1, /Nodata, xrange = [min(diff),max(diff)]
-For isza = 0, nsza-1 do begin
-For ivza = 0, nvza-1 do begin
-For iraa = 0, nraa-1 do begin
+; Plot scattering albedo dependence
+sca  = [sw1m[45,0,0,0],sw2m[45,0,0,0],sw3m[45,0,0,0],sw4m[45,0,0,0],sw5m[45,0,0,0],sw6m[45,0,0,0],$
+        sw7m[45,0,0,0],sw8m[45,0,0,0],sw9m[45,0,0,0],sw10m[45,0,0,0],sw11m[45,0,0,0],sw12m[45,0,0,0]]
+cgplot, alog(surf), sca, color = 1, yrange = [0.0, MAX(sw12m[*,*,*,*])]
 
-   cgplot, diff[*,isza,ivza,iraa], zmid, color = 1, /Overplot
-
-Endfor
-Endfor
-Endfor
+sca  = [sw1m[20,5,5,5],sw2m[20,5,5,5],sw3m[20,5,5,5],sw4m[20,5,5,5],sw5m[20,5,5,5],sw6m[20,5,5,5],$
+        sw7m[20,5,5,5],sw8m[20,5,5,5],sw9m[20,5,5,5],sw10m[20,5,5,5],sw11m[20,5,5,5],sw12m[20,5,5,5]]
+cgplot, alog(surf), sca, color = 3, /Overplot
 
 END
