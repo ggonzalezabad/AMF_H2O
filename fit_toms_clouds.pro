@@ -23,17 +23,13 @@ TOMS =['h125', 'h275', 'h425', 'h575', 'l325', 'l475', 'm225', 'm375', 'm525', '
        'h325', 'h475', 'l225', 'l375', 'm125', 'm275', 'm425', 'm575', 'h225', 'h375', $
        'h525', 'l275', 'l425', 'm175', 'm325', 'm475']
 
-; Lower level pressure (surface)
-NPRE = 12
-SURF =['1030', '0950', '0900', '0850', '0800', '0750', '0700', '0650', '0600', '0550', '0500', '0450']
-
 ; Lower level pressure (Cloud pressure)
 NCLD = 12
-CLDP =['1000', '0950', '0900', '0850', '0800', '0750', '0700', '0600', '0500', '0400', '0300', '0200']
+CLDP =['1030', '0950', '0900', '0850', '0800', '0750', '0700', '0650', '0575', '0500', '0425', '0350']
 
 ; Read one file to get the grid (these should not change for different
 ; viewing geometries, albedo and cloud properties)
-filename = '../../CALCULATIONS/H2O_h125_1030_1.00_1000_0.80_GC_upwelling_output.nc'
+filename = '../../CALCULATIONS/H2O_h125_1030_cloud__GC_upwelling_output.nc'
 obj  = Obj_New('NCDF_DATA', filename)
 data = Obj -> ReadFile(filename)
 ; Read number of sza, vza, raa, layers and wavelengths
@@ -55,16 +51,12 @@ wav = data.wavelength.data                    ; [nm]
 ; consider clouds as Lambertian surface with a reflectance of 0.8.
 For iozo = 0, nozo-1 do begin
    print, nozo-iozo
-   For ipre = 0, npre-1 do begin
       read_prof = 1
       For icld = 0, ncld-1 do begin
-         ; If the cloud is below the surface then skip this loop
-         IF ( FLOAT(CLDP[icld]) GT FLOAT(SURF[ipre]) ) THEN CONTINUE
-
          radiance = FLTARR(nsza,nvza,nraa)
          scatteri = FLTARR(nsza,nvza,nraa,nlay)
          filename = '../../CALCULATIONS/H2O_'+TOMS[iozo]+'_'+ $
-                    SURF[ipre]+'_1.00_'+CLDP[icld]+'_0.80_GC_upwelling_output.nc'
+                    CLDP[icld]+'_cloud__GC_upwelling_output.nc'
          print, filename
    ; Open and read file
          obj  = Obj_New('NCDF_DATA', filename)
@@ -82,7 +74,7 @@ For iozo = 0, nozo-1 do begin
             gasc = data.gascol.data ; Layer [molecules/cm-2]
             temp = data.ts.data     ; Level [K]
    ; Don't read profiles again
-            read_prof = 0
+            read_prof = 1
          ENDIF
       ; Fill up radiance, jacobians, and scattering weights matrices
          For isza = 0, nsza-1 do begin
@@ -102,7 +94,7 @@ For iozo = 0, nozo-1 do begin
          COSRAA  = COS(RAA*!dtor)
          COS2RAA = COS(2*RAA*!dtor)
          PRINT, STRCOMPRESS('OZONE '+TOMS[iozo]+', NWAV '+STRING(NWAV)+', NLAYERS '+STRING(NLAY)+', NLEVELS '+$
-                            STRING(NLEV)+' SURFACE LEVEL '+SURF[ipre]+', CLOUD PRESSURE '+CLDP[icld])
+                            STRING(NLEV)+' ,CLOUD PRESSURE '+CLDP[icld])
    ; Variable to keep the calculated parameters.
          I0        = FLTARR(NSZA,NVZA)
          I1        = FLTARR(NSZA,NVZA)
@@ -138,7 +130,7 @@ For iozo = 0, nozo-1 do begin
          SAVE, nsza, nvza, nraa, nlev, nlay, nwav, zlev, plev,   $
                zmid, pmid, sza, vza, raa, wav, airc, gasc, temp, $
                I0, I1, I2, Ir, Sb, TOMS_CLI, $
-               FILENAME = DIR_FITTING+'/Radiance_fit_'+TOMS[iozo]+'_'+SURF[ipre]+'_cloud_'+CLDP[icld]+'.dat'
+               FILENAME = DIR_FITTING+'/Radiance_fit_'+TOMS[iozo]+'_'+CLDP[icld]+'_cloud.dat'
    
          For isza = 0, nsza-1 do begin
             For ivza = 0, nvza-1 do begin
@@ -190,12 +182,11 @@ For iozo = 0, nozo-1 do begin
          SAVE, nsza, nvza, nraa, nlev, nlay, nwav, zlev, plev, $
                zmid, pmid, sza, vza, raa, wav, airc, gasc, temp, $
                dI0, dI1, dI2, TOMS_CLI, $
-               FILENAME = DIR_FITTING+'/Scattering_fit_'+TOMS[iozo]+'_'+SURF[ipre]+'_cloud_'+CLDP[icld]+'.dat'   
+               FILENAME = DIR_FITTING+'/Scattering_fit_'+TOMS[iozo]+'_'+CLDP[icld]+'_cloud.dat'   
          test_scat = (scatteri-scatteri_bis)/scatteri*100.0         
          print, max(test_rad), min(test_rad), max(test_scat), min(test_scat)
 
       Endfor ; End cloud pressure loop
-   Endfor ; End surface pessure loop
 Endfor ; End TOMS loop
 ; Just in case a file is left open
 CLOSE, /ALL

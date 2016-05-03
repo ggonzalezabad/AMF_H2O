@@ -118,6 +118,7 @@ Endfor
 Endfor
 Endfor
 
+stop
 clp  = [200.0, 300.0, 400.0, 500.0, 600.0, 700.0, 750.0, 800.0, 850.0, 900.0, 950.0, 1000.0]
 ; Plot radiance albedo dependence
 rad  = [in1m[0,0,0],in2m[0,0,0],in3m[0,0,0],in4m[0,0,0],in5m[0,0,0],in6m[0,0,0],$

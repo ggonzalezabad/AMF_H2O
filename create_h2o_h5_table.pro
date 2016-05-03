@@ -1,6 +1,6 @@
 PRO create_h2o_h5_table
 
-  FILENAME         = 'AMFs_lookup_h2o_442nm_test.he5'
+  FILENAME         = 'AMFs_lookup_h2o_442nm_bis.he5'
   Author           = 'Gonzalo Gonzalez Abad ggonzalezabad@cfa.harvard.edu'
   Institution      = 'Smithsonian Astrophysical Observatory'
   Last_file_update = SYSTIME()
@@ -87,8 +87,8 @@ PRO create_h2o_h5_table
   H5A_CLOSE, att_id
   H5D_CLOSE, dat_id
   ; Cloud pressure
-  cldp = [1000.0,0950.0,0900.0,0850.0,0800.0,0750.0,0700.0,0600.0,0500.0,0400.0,0300.0,0200.0]
-  cldps = ['1000','0950','0900','0850','0800','0750','0700','0600','0500','0400','0300','0200']
+  cldp = [1030.0,0950.0,0900.0,0850.0,0800.0,0750.0,0700.0,0650.0,0575.0,0500.0,0425.0,0350.0]
+  cldps = ['1030','0950','0900','0850','0800','0750','0700','0650','0575','0500','0425','0350']
   ncldp = N_ELEMENTS(cldp)
   datatype  = H5T_IDL_CREATE(cldp)
   dataspace = H5S_CREATE_SIMPLE(SIZE(cldp,/dimensions))
@@ -135,6 +135,8 @@ PRO create_h2o_h5_table
   altitude_layer = FLTARR(NSURF,NLAY)
   pressure_level = FLTARR(NSURF,NLEV)
   pressure_layer = FLTARR(NSURF,NLAY)
+  cloud_pressure_level = FLTARR(NCLDP,NLEV)
+  cloud_pressure_layer = FLTARR(NCLDP,NLAY)
   temperat_level = FLTARR(NTOMS,NSURF,NLEV)
   aircolum_layer = FLTARR(NTOMS,NSURF,NLAY)
   ozonecol_layer = FLTARR(NTOMS,NSURF,NLAY)
@@ -153,6 +155,15 @@ PRO create_h2o_h5_table
      ENDFOR
   ENDFOR
 
+  FOR iclp = 0, ncldp-1 do begin
+     For itoms = 0, ntoms-1 do begin
+        filename = '../fitting_results_cloud/Radiance_fit_'+TOMS[itoms]+'_'+CLDPS[iclp]+'_cloud.dat'
+        RESTORE, filename
+        cloud_pressure_level[iclp,*] = plev
+        cloud_pressure_layer[iclp,*] = pmid
+     Endfor
+  Endfor
+ 
   ; Pressure level
   datatype  = H5T_IDL_CREATE(pressure_level)
   dataspace = H5S_CREATE_SIMPLE(SIZE(pressure_level,/dimensions))
@@ -168,6 +179,26 @@ PRO create_h2o_h5_table
   dataspace = H5S_CREATE_SIMPLE(SIZE(pressure_layer,/dimensions))
   dat_id    = H5D_CREATE(grp_id, 'Pressure Layer', datatype, dataspace)
   H5D_WRITE, dat_id, pressure_layer
+  unit   = '[hPa]' & datatype = H5T_IDL_CREATE(unit) & dataspace = H5S_CREATE_SIMPLE(1)
+  att_id = H5A_CREATE(dat_id, 'Unit', datatype, dataspace)
+  H5A_WRITE, att_id, unit
+  H5A_CLOSE, att_id
+  H5D_CLOSE, dat_id
+  ; Cloud pressure level
+  datatype  = H5T_IDL_CREATE(cloud_pressure_level)
+  dataspace = H5S_CREATE_SIMPLE(SIZE(cloud_pressure_level,/dimensions))
+  dat_id    = H5D_CREATE(grp_id, 'Cloud pressure Level', datatype, dataspace)
+  H5D_WRITE, dat_id, cloud_pressure_level
+  unit   = '[hPa]' & datatype = H5T_IDL_CREATE(unit) & dataspace = H5S_CREATE_SIMPLE(1)
+  att_id = H5A_CREATE(dat_id, 'Unit', datatype, dataspace)
+  H5A_WRITE, att_id, unit
+  H5A_CLOSE, att_id
+  H5D_CLOSE, dat_id
+  ; Cloud pressure layer
+  datatype  = H5T_IDL_CREATE(cloud_pressure_layer)
+  dataspace = H5S_CREATE_SIMPLE(SIZE(cloud_pressure_layer,/dimensions))
+  dat_id    = H5D_CREATE(grp_id, 'Cloud pressure Layer', datatype, dataspace)
+  H5D_WRITE, dat_id, cloud_pressure_layer
   unit   = '[hPa]' & datatype = H5T_IDL_CREATE(unit) & dataspace = H5S_CREATE_SIMPLE(1)
   att_id = H5A_CREATE(dat_id, 'Unit', datatype, dataspace)
   H5A_WRITE, att_id, unit
@@ -308,24 +339,21 @@ PRO create_h2o_h5_table
   H5G_CLOSE,grp2_id
 
   ; Create variables to hold data (cloud sky)
-  I0_all = FLTARR(NTOMS,NSURF,NCLDP,NVZA,NSZA)
-  I1_all = FLTARR(NTOMS,NSURF,NCLDP,NVZA,NSZA)
-  I2_all = FLTARR(NTOMS,NSURF,NCLDP,NVZA,NSZA)
-  Ir_all = FLTARR(NTOMS,NSURF,NCLDP,NVZA,NSZA)
-  Sb_all = FLTARR(NTOMS,NSURF,NCLDP)
+  I0_all = FLTARR(NTOMS,NCLDP,NVZA,NSZA)
+  I1_all = FLTARR(NTOMS,NCLDP,NVZA,NSZA)
+  I2_all = FLTARR(NTOMS,NCLDP,NVZA,NSZA)
+  Ir_all = FLTARR(NTOMS,NCLDP,NVZA,NSZA)
+  Sb_all = FLTARR(NTOMS,NCLDP)
   ; Fill in cloudy sky variables
   For itoms = 0, ntoms-1 do begin
-     For isurf = 0, nsurf-1 do begin
         For ipre = 0, ncldp-1 do begin
-           IF ( CLDP[ipre] GT SURF[isurf] ) THEN CONTINUE
            filename = '../fitting_results_cloud/Radiance_fit_'+$
-                      TOMS[itoms]+'_'+SURFS[isurf]+'_cloud_'+CLDPS[ipre]+'.dat'
+                      TOMS[itoms]+'_'+CLDPS[ipre]+'_cloud.dat'
            print, filename
            RESTORE, filename
-           I0_all[itoms,isurf,ipre,*,*] = TRANSPOSE(I0)
-           I1_all[itoms,isurf,ipre,*,*] = TRANSPOSE(I1)
-           I2_all[itoms,isurf,ipre,*,*] = TRANSPOSE(I2)
-        Endfor
+           I0_all[itoms,ipre,*,*] = TRANSPOSE(I0)
+           I1_all[itoms,ipre,*,*] = TRANSPOSE(I1)
+           I2_all[itoms,ipre,*,*] = TRANSPOSE(I2)
      Endfor
   Endfor
   ; Clear sky I0 (NSZA,NVZA,NTOMS)
@@ -441,24 +469,21 @@ PRO create_h2o_h5_table
   H5G_CLOSE, grp2_id
 
   ; Create variables to hold data (cloud sky)
-  dI0_all = FLTARR(NTOMS,NSURF,NLAY,NCLDP,NVZA,NSZA)
-  dI1_all = FLTARR(NTOMS,NSURF,NLAY,NCLDP,NVZA,NSZA)
-  dI2_all = FLTARR(NTOMS,NSURF,NLAY,NCLDP,NVZA,NSZA)
+  dI0_all = FLTARR(NTOMS,NLAY,NCLDP,NVZA,NSZA)
+  dI1_all = FLTARR(NTOMS,NLAY,NCLDP,NVZA,NSZA)
+  dI2_all = FLTARR(NTOMS,NLAY,NCLDP,NVZA,NSZA)
   ; Fill in cloud sky variables
   For itoms = 0, ntoms-1 do begin
-     For isurf = 0, nsurf-1 do begin
-        For ipre = 0, ncldp-1 do begin
-           IF ( CLDP[ipre] GT SURF[isurf] ) THEN CONTINUE
-           filename = '../fitting_results_cloud/Scattering_fit_'+$
-                      TOMS[itoms]+'_'+SURFS[isurf]+'_cloud_'+CLDPS[ipre]+'.dat'
-           print, filename
-           RESTORE, filename
-           dI0_all[itoms,isurf,*,ipre,*,*] = TRANSPOSE(dI0)
-           dI1_all[itoms,isurf,*,ipre,*,*] = TRANSPOSE(dI1)
-           dI2_all[itoms,isurf,*,ipre,*,*] = TRANSPOSE(dI2)
-        Endfor
+     For ipre = 0, ncldp-1 do begin
+        filename = '../fitting_results_cloud/Scattering_fit_'+$
+                   TOMS[itoms]+'_'+CLDPS[ipre]+'_cloud.dat'
+        print, filename
+        RESTORE, filename
+        dI0_all[itoms,*,ipre,*,*] = TRANSPOSE(dI0)
+        dI1_all[itoms,*,ipre,*,*] = TRANSPOSE(dI1)
+        dI2_all[itoms,*,ipre,*,*] = TRANSPOSE(dI2)
      Endfor
-  Endfor
+Endfor
   ; cloud sky dI0 (NSZA,NVZA,NCLDP,NLAY,NTOMS)
   grp2_id = H5G_OPEN(grp_id, 'Cloud Sky')
   datatype  = H5T_IDL_CREATE(dI0_all)
